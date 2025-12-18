@@ -1,0 +1,7 @@
+{
+  "name": "Smoky Peaks Cabins",
+  "description": "A luxury cabin rental website for Smoky Peaks Cabins in Gatlinburg, TN, featuring Angel Heights and Angel Rise retreats with a cozy, rustic aesthetic.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
