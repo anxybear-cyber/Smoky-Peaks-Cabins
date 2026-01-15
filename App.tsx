@@ -4,6 +4,7 @@ import Footer from './components/Footer.tsx';
 import CabinDetails from './components/CabinDetails.tsx';
 import Blog from './components/Blog.tsx';
 import ContactForm from './components/ContactForm.tsx';
+import TripPlanner from './components/TripPlanner.tsx';
 import { CABINS, BLOG_POSTS } from './constants.ts';
 import { CabinImages, BlogPost } from './types.ts';
 import { compressImage, safeLocalStorageSet } from './utils.ts';
@@ -14,8 +15,10 @@ const STORAGE_KEYS = {
   BLOG: 'smoky_peaks_blog_v1'
 };
 
+type Page = 'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact' | 'planner';
+
 const App: React.FC = () => {
-  const [page, setPage] = useState<'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact'>('home');
+  const [page, setPage] = useState<Page>('home');
   const [isProcessing, setIsProcessing] = useState(false);
   
   const [homeHeroImage, setHomeHeroImage] = useState<string>(() => {
@@ -55,10 +58,11 @@ const App: React.FC = () => {
       case 'angelrise': document.title = `Angel Rise Cabin | Mountain View Retreat Gatlinburg`; break;
       case 'blog': document.title = `Mountain Musings Blog | Gatlinburg & Smoky Mountains Guide`; break;
       case 'contact': document.title = `Contact Us | Smoky Peaks Cabins Gatlinburg`; break;
+      case 'planner': document.title = `AI Trip Planner | Smoky Peaks Mountain Guide`; break;
     }
   }, [page]);
 
-  const handleNavigate = (newPage: 'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact') => {
+  const handleNavigate = (newPage: Page) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -116,12 +120,8 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (page === 'contact') return <ContactForm />;
-    if (page === 'blog') return (
-      <Blog 
-        posts={blogPosts} 
-        onUpdatePostImage={handleUpdateBlogPostImage} 
-      />
-    );
+    if (page === 'blog') return <Blog posts={blogPosts} onUpdatePostImage={handleUpdateBlogPostImage} />;
+    if (page === 'planner') return <TripPlanner />;
     
     if (page === 'angelheights') {
       return (
@@ -208,6 +208,12 @@ const App: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-serif text-stone-800 mb-8">Reconnect with Nature in the Smokies</h2>
             <p className="text-lg text-stone-600 leading-relaxed mb-12 italic">"Smoky Peaks Cabins isn't just a vacation rental. It's a sanctuary where the morning fog meets your coffee cup and the sunset paints a different masterpiece on your deck every single evening."</p>
             <div className="w-24 h-1 bg-emerald-900 mx-auto rounded-full" />
+            <button 
+              onClick={() => handleNavigate('planner')}
+              className="mt-8 text-emerald-900 font-bold tracking-widest uppercase text-xs border-b border-emerald-900/20 hover:border-emerald-900 transition-all pb-1"
+            >
+              Try our AI Mountain Guide
+            </button>
           </div>
         </section>
 

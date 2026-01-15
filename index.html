@@ -52,8 +52,15 @@
       }
     </style>
     <script>
-      // Shim process for libraries that expect it in browser ESM environments
-      window.process = { env: { NODE_ENV: 'production' } };
+      // Shim process and standard environment for browser-based ESM modules
+      window.process = { 
+        env: { 
+          NODE_ENV: 'production',
+          API_KEY: '' // Placeholder, will be injected by platform if available
+        },
+        version: '',
+        nextTick: (cb) => setTimeout(cb, 0)
+      };
     </script>
     <script type="importmap">
 {
