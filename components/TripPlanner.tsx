@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 
@@ -11,7 +10,8 @@ const TripPlanner: React.FC = () => {
     if (!interest) return;
     setLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+      // Initialize fresh instance to ensure correct API key usage
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `I am staying at a SmokyPeaks cabin in Gatlinburg. I am interested in: ${interest}. 
