@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { BlogPost } from '../types';
+import { BlogPost } from '../types.ts';
 
 interface BlogProps {
   posts: BlogPost[];
@@ -9,16 +8,19 @@ interface BlogProps {
 
 const Blog: React.FC<BlogProps> = ({ posts, onUpdatePostImage }) => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
   const selectedPost = posts.find(p => p.id === selectedPostId);
 
   const handleImageUpload = (postId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setIsUpdating(postId);
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         if (typeof reader.result === 'string') {
-          onUpdatePostImage(postId, reader.result);
+          await onUpdatePostImage(postId, reader.result);
+          setIsUpdating(null);
         }
       };
       reader.readAsDataURL(file);
@@ -46,20 +48,24 @@ const Blog: React.FC<BlogProps> = ({ posts, onUpdatePostImage }) => {
               {selectedPost.category}
             </div>
             
-            {/* Update Photo Overlay */}
             <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
               <label 
                 className="cursor-pointer bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[10px] font-bold tracking-widest px-4 py-2 rounded-full border border-white/20 uppercase transition-all flex items-center gap-2 shadow-xl"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Change Photo
+                {isUpdating === selectedPost.id ? 'Processing...' : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Change Photo
+                  </>
+                )}
                 <input 
                   type="file" 
                   accept="image/*" 
                   onChange={(e) => handleImageUpload(selectedPost.id, e)} 
                   className="hidden" 
+                  disabled={!!isUpdating}
                 />
               </label>
             </div>
@@ -87,7 +93,6 @@ const Blog: React.FC<BlogProps> = ({ posts, onUpdatePostImage }) => {
 
   return (
     <div className="animate-fadeIn bg-stone-100 min-h-screen pb-24">
-      {/* Blog Hero */}
       <section className="bg-emerald-950 text-white py-24 px-6 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Mountain Musings</h1>
@@ -97,7 +102,6 @@ const Blog: React.FC<BlogProps> = ({ posts, onUpdatePostImage }) => {
         </div>
       </section>
 
-      {/* Posts Grid */}
       <div className="max-w-7xl mx-auto px-6 -mt-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post) => (
@@ -115,20 +119,24 @@ const Blog: React.FC<BlogProps> = ({ posts, onUpdatePostImage }) => {
                   {post.category}
                 </div>
 
-                {/* Update Photo Button Overlay for Thumbnail */}
                 <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <label 
                     className="cursor-pointer bg-white/90 hover:bg-white backdrop-blur-md text-emerald-900 text-[8px] font-bold tracking-[0.2em] px-3 py-1.5 rounded-full border border-stone-200 uppercase transition-all flex items-center gap-2 shadow-lg"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    </svg>
-                    Update Photo
+                    {isUpdating === post.id ? 'Processing...' : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        </svg>
+                        Update Photo
+                      </>
+                    )}
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={(e) => handleImageUpload(post.id, e)} 
                       className="hidden" 
+                      disabled={!!isUpdating}
                     />
                   </label>
                 </div>

@@ -1,4 +1,4 @@
-import { Cabin, BlogPost } from './types';
+import { Cabin, BlogPost } from './types.ts';
 
 const COMMON_ATTRACTIONS = [
   {
@@ -180,7 +180,7 @@ Gatlinburg offers unique local experiences that are best enjoyed at a leisurely 
 Three days allow for a mix of daytime adventure and evening fun. You can catch live shows like the Comedy Barn or Dolly Parton’s Stampede, or even take a spooky ghost tour through the historic streets of downtown.
 
 **The Perfect Balance**
-This duration allows for a harmonious balance of outdoor adventure and town exploration. You can spend one full day in the park, one day exploring the Parkway, and one day simply relaxing at your historic Smoky Peaks cabin, soaking in the hot tub and watching the clouds roll over the ridges.
+This duration allow for a harmonious balance of outdoor adventure and town exploration. You can spend one full day in the park, one day exploring the Parkway, and one day simply relaxing at your historic Smoky Peaks cabin, soaking in the hot tub and watching the clouds roll over the ridges.
 
 While shorter visits are possible, two days can often feel rushed. On the other hand, a 3-day trip combines popular outdoor activities with local culture, making it the highly recommended duration for most visitors.`,
     date: 'November 15, 2024',

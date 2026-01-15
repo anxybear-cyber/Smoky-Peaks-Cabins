@@ -21,35 +21,6 @@
     <meta property="twitter:description" content="Experience the magic of the Smokies in our premium Gatlinburg cabins." />
     <meta property="twitter:image" content="https://images.unsplash.com/photo-1547466832-1d2cc1eeac02?auto=format&fit=crop&q=80&w=1200" />
 
-    <!-- Structured Data (Schema.org) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LodgingBusiness",
-      "name": "Smoky Peaks Cabins",
-      "description": "Luxury cabin rentals in Gatlinburg, Tennessee.",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Gatlinburg",
-        "addressRegion": "TN",
-        "postalCode": "37738",
-        "addressCountry": "US"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 35.7143,
-        "longitude": -83.5102
-      },
-      "url": "https://smokypeakscabins.com",
-      "priceRange": "$$$",
-      "amenityFeature": [
-        { "@type": "LocationFeatureSpecification", "name": "Hot Tub", "value": "true" },
-        { "@type": "LocationFeatureSpecification", "name": "Mountain View", "value": "true" },
-        { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": "true" }
-      ]
-    }
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,6 +28,7 @@
     <style>
       body {
         font-family: 'Montserrat', sans-serif;
+        background-color: #f5f5f4; /* stone-100 */
       }
       h1, h2, h3, .font-serif {
         font-family: 'Libre+Baskerville', serif;
@@ -65,25 +37,35 @@
         from { transform: scale(0.95); opacity: 0; }
         to { transform: scale(1); opacity: 1; }
       }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
       .animate-scaleIn {
         animation: scaleIn 0.3s ease-out forwards;
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
       }
       .text-shadow-lg {
         text-shadow: 0 4px 8px rgba(0,0,0,0.5);
       }
     </style>
-  <script type="importmap">
+    <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
-</head>
+  </head>
   <body class="bg-stone-100 text-stone-900">
     <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>

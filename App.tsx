@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import CabinDetails from './components/CabinDetails';
-import Blog from './components/Blog';
-import ContactForm from './components/ContactForm';
-import { CABINS, BLOG_POSTS } from './constants';
-import { CabinImages, BlogPost } from './types';
+import Header from './components/Header.tsx';
+import Footer from './components/Footer.tsx';
+import CabinDetails from './components/CabinDetails.tsx';
+import Blog from './components/Blog.tsx';
+import ContactForm from './components/ContactForm.tsx';
+import { CABINS, BLOG_POSTS } from './constants.ts';
+import { CabinImages, BlogPost } from './types.ts';
+import { compressImage, safeLocalStorageSet } from './utils.ts';
 
 const STORAGE_KEYS = {
   HERO: 'smoky_peaks_hero_v1',
@@ -15,8 +16,8 @@ const STORAGE_KEYS = {
 
 const App: React.FC = () => {
   const [page, setPage] = useState<'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact'>('home');
+  const [isProcessing, setIsProcessing] = useState(false);
   
-  // Initialize state from localStorage or defaults
   const [homeHeroImage, setHomeHeroImage] = useState<string>(() => {
     return localStorage.getItem(STORAGE_KEYS.HERO) || 'https://images.unsplash.com/photo-1547466832-1d2cc1eeac02?auto=format&fit=crop&q=80&w=1920&h=1080';
   });
@@ -34,38 +35,26 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : BLOG_POSTS;
   });
 
-  // Persistence Effects
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.HERO, homeHeroImage);
+    safeLocalStorageSet(STORAGE_KEYS.HERO, homeHeroImage);
   }, [homeHeroImage]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CABINS, JSON.stringify(cabinImages));
+    safeLocalStorageSet(STORAGE_KEYS.CABINS, JSON.stringify(cabinImages));
   }, [cabinImages]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.BLOG, JSON.stringify(blogPosts));
+    safeLocalStorageSet(STORAGE_KEYS.BLOG, JSON.stringify(blogPosts));
   }, [blogPosts]);
 
-  // Update Page Title dynamically for SEO
   useEffect(() => {
     const baseTitle = "Smoky Peaks Cabins";
     switch (page) {
-      case 'home':
-        document.title = `${baseTitle} | Gatlinburg Luxury Cabin Rentals`;
-        break;
-      case 'angelheights':
-        document.title = `Angel Heights Cabin | Historic Log Cabin in Gatlinburg, TN`;
-        break;
-      case 'angelrise':
-        document.title = `Angel Rise Cabin | Mountain View Retreat Gatlinburg`;
-        break;
-      case 'blog':
-        document.title = `Mountain Musings Blog | Gatlinburg & Smoky Mountains Guide`;
-        break;
-      case 'contact':
-        document.title = `Contact Us | Smoky Peaks Cabins Gatlinburg`;
-        break;
+      case 'home': document.title = `${baseTitle} | Gatlinburg Luxury Cabin Rentals`; break;
+      case 'angelheights': document.title = `Angel Heights Cabin | Historic Log Cabin in Gatlinburg, TN`; break;
+      case 'angelrise': document.title = `Angel Rise Cabin | Mountain View Retreat Gatlinburg`; break;
+      case 'blog': document.title = `Mountain Musings Blog | Gatlinburg & Smoky Mountains Guide`; break;
+      case 'contact': document.title = `Contact Us | Smoky Peaks Cabins Gatlinburg`; break;
     }
   }, [page]);
 
@@ -74,13 +63,16 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleHeroUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setIsProcessing(true);
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         if (typeof reader.result === 'string') {
-          setHomeHeroImage(reader.result);
+          const compressed = await compressImage(reader.result);
+          setHomeHeroImage(compressed);
+          setIsProcessing(false);
         }
       };
       reader.readAsDataURL(file);
@@ -88,11 +80,14 @@ const App: React.FC = () => {
     }
   };
 
-  const addImage = (cabinId: string, base64: string) => {
+  const addImage = async (cabinId: string, base64: string) => {
+    setIsProcessing(true);
+    const compressed = await compressImage(base64);
     setCabinImages(prev => ({
       ...prev,
-      [cabinId]: [base64, ...prev[cabinId]].slice(0, 24)
+      [cabinId]: [compressed, ...prev[cabinId]].slice(0, 24)
     }));
+    setIsProcessing(false);
   };
 
   const handleRemoveImage = (cabinId: string, index: number) => {
@@ -106,17 +101,17 @@ const App: React.FC = () => {
     setCabinImages(prev => {
       const current = [...prev[cabinId]];
       const [item] = current.splice(index, 1);
-      return {
-        ...prev,
-        [cabinId]: [item, ...current]
-      };
+      return { ...prev, [cabinId]: [item, ...current] };
     });
   };
 
-  const handleUpdateBlogPostImage = (postId: string, base64: string) => {
+  const handleUpdateBlogPostImage = async (postId: string, base64: string) => {
+    setIsProcessing(true);
+    const compressed = await compressImage(base64);
     setBlogPosts(prev => prev.map(post => 
-      post.id === postId ? { ...post, image: base64 } : post
+      post.id === postId ? { ...post, image: compressed } : post
     ));
+    setIsProcessing(false);
   };
 
   const renderContent = () => {
@@ -171,10 +166,19 @@ const App: React.FC = () => {
               htmlFor="hero-photo-upload"
               className="cursor-pointer bg-black/50 hover:bg-black/70 backdrop-blur-md text-white text-[10px] font-bold tracking-widest px-4 py-2 rounded-full border border-white/20 uppercase transition-all flex items-center gap-2 shadow-2xl active:scale-95"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              Update Hero Photo
+              {isProcessing ? (
+                 <span className="flex items-center gap-2">
+                   <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                   Processing...
+                 </span>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Update Hero Photo
+                </>
+              )}
             </label>
             <input 
               id="hero-photo-upload"
@@ -182,6 +186,7 @@ const App: React.FC = () => {
               accept="image/*" 
               onChange={handleHeroUpload} 
               className="hidden" 
+              disabled={isProcessing}
             />
           </div>
           
@@ -190,18 +195,8 @@ const App: React.FC = () => {
               <h1 className="text-6xl md:text-8xl font-serif mb-6 drop-shadow-2xl text-shadow-lg text-white">Escape to the Peaks</h1>
               <p className="text-xl md:text-2xl font-light tracking-[0.2em] uppercase mb-12 drop-shadow-md text-white">Luxury Cabin Retreats in Gatlinburg</p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <button 
-                  onClick={() => handleNavigate('angelheights')}
-                  className="bg-emerald-900 hover:bg-emerald-800 text-white px-10 py-4 rounded-full font-bold shadow-2xl transition-all transform hover:-translate-y-1"
-                >
-                  Explore Angel Heights
-                </button>
-                <button 
-                  onClick={() => handleNavigate('angelrise')}
-                  className="bg-white text-emerald-900 hover:bg-stone-100 px-10 py-4 rounded-full font-bold shadow-2xl transition-all transform hover:-translate-y-1"
-                >
-                  Explore Angel Rise
-                </button>
+                <button onClick={() => handleNavigate('angelheights')} className="bg-emerald-900 hover:bg-emerald-800 text-white px-10 py-4 rounded-full font-bold shadow-2xl transition-all transform hover:-translate-y-1">Explore Angel Heights</button>
+                <button onClick={() => handleNavigate('angelrise')} className="bg-white text-emerald-900 hover:bg-stone-100 px-10 py-4 rounded-full font-bold shadow-2xl transition-all transform hover:-translate-y-1">Explore Angel Rise</button>
               </div>
             </div>
           </div>
@@ -211,9 +206,7 @@ const App: React.FC = () => {
         <section className="py-24 px-6 bg-stone-100 border-b border-stone-200">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-serif text-stone-800 mb-8">Reconnect with Nature in the Smokies</h2>
-            <p className="text-lg text-stone-600 leading-relaxed mb-12 italic">
-              "Smoky Peaks Cabins isn't just a vacation rental. It's a sanctuary where the morning fog meets your coffee cup and the sunset paints a different masterpiece on your deck every single evening."
-            </p>
+            <p className="text-lg text-stone-600 leading-relaxed mb-12 italic">"Smoky Peaks Cabins isn't just a vacation rental. It's a sanctuary where the morning fog meets your coffee cup and the sunset paints a different masterpiece on your deck every single evening."</p>
             <div className="w-24 h-1 bg-emerald-900 mx-auto rounded-full" />
           </div>
         </section>
@@ -232,9 +225,7 @@ const App: React.FC = () => {
                 <p className="text-stone-500 mb-6 line-clamp-3">A thoughtfully restored historic log cabin offering mountain views and modern comforts. Secluded in nature but just minutes from the Parkway and Dollywood.</p>
                 <div className="flex gap-4">
                   {CABINS[0].mainFeatures.slice(0, 3).map(f => (
-                    <span key={f} className="text-[10px] uppercase tracking-tighter text-stone-500 font-bold border border-stone-400 px-2 py-1 rounded">
-                      {f}
-                    </span>
+                    <span key={f} className="text-[10px] uppercase tracking-tighter text-stone-500 font-bold border border-stone-400 px-2 py-1 rounded">{f}</span>
                   ))}
                 </div>
               </div>
@@ -249,9 +240,7 @@ const App: React.FC = () => {
                 <p className="text-stone-500 mb-6 line-clamp-3">A haven for peace and recharging. Floor-to-ceiling tile spa bathrooms and stunning views of Mt. LeConte. The ultimate secluded retreat.</p>
                 <div className="flex gap-4">
                   {CABINS[1].mainFeatures.slice(0, 3).map(f => (
-                    <span key={f} className="text-[10px] uppercase tracking-tighter text-stone-500 font-bold border border-stone-400 px-2 py-1 rounded">
-                      {f}
-                    </span>
+                    <span key={f} className="text-[10px] uppercase tracking-tighter text-stone-500 font-bold border border-stone-400 px-2 py-1 rounded">{f}</span>
                   ))}
                 </div>
               </div>
@@ -268,12 +257,7 @@ const App: React.FC = () => {
           <div className="max-w-4xl mx-auto text-center relative z-10">
             <h2 className="text-4xl md:text-6xl font-serif mb-8 drop-shadow-lg">Ready for your Gatlinburg getaway?</h2>
             <p className="text-xl text-emerald-100/70 mb-12">Join thousands of happy families who have made Smoky Peaks Cabins their home away from home in the Great Smoky Mountains.</p>
-            <button 
-              onClick={() => handleNavigate('contact')}
-              className="bg-white text-emerald-950 px-12 py-5 rounded-full font-bold text-lg shadow-xl hover:scale-105 transition-transform"
-            >
-              Book Your Stay
-            </button>
+            <button onClick={() => handleNavigate('contact')} className="bg-white text-emerald-950 px-12 py-5 rounded-full font-bold text-lg shadow-xl hover:scale-105 transition-transform">Book Your Stay</button>
           </div>
         </section>
       </div>

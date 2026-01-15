@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { Cabin } from '../types';
-import ImageUploader from './ImageUploader';
-import Carousel from './Carousel';
+import { Cabin } from '../types.ts';
+import ImageUploader from './ImageUploader.tsx';
+import Carousel from './Carousel.tsx';
 
 interface CabinDetailsProps {
   cabin: Cabin;
