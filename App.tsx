@@ -8,14 +8,45 @@ import ContactForm from './components/ContactForm';
 import { CABINS, BLOG_POSTS } from './constants';
 import { CabinImages, BlogPost } from './types';
 
+const STORAGE_KEYS = {
+  HERO: 'smoky_peaks_hero_v1',
+  CABINS: 'smoky_peaks_cabins_v1',
+  BLOG: 'smoky_peaks_blog_v1'
+};
+
 const App: React.FC = () => {
   const [page, setPage] = useState<'home' | 'angelheights' | 'angelrise' | 'planner' | 'blog' | 'contact'>('home');
-  const [homeHeroImage, setHomeHeroImage] = useState('https://images.unsplash.com/photo-1547466832-1d2cc1eeac02?auto=format&fit=crop&q=80&w=1920&h=1080');
-  const [cabinImages, setCabinImages] = useState<CabinImages>({
-    angelheights: CABINS[0].defaultImages,
-    angelrise: CABINS[1].defaultImages,
+  
+  // Initialize state from localStorage or defaults
+  const [homeHeroImage, setHomeHeroImage] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.HERO) || 'https://images.unsplash.com/photo-1547466832-1d2cc1eeac02?auto=format&fit=crop&q=80&w=1920&h=1080';
   });
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(BLOG_POSTS);
+
+  const [cabinImages, setCabinImages] = useState<CabinImages>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CABINS);
+    return saved ? JSON.parse(saved) : {
+      angelheights: CABINS[0].defaultImages,
+      angelrise: CABINS[1].defaultImages,
+    };
+  });
+
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.BLOG);
+    return saved ? JSON.parse(saved) : BLOG_POSTS;
+  });
+
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.HERO, homeHeroImage);
+  }, [homeHeroImage]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CABINS, JSON.stringify(cabinImages));
+  }, [cabinImages]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.BLOG, JSON.stringify(blogPosts));
+  }, [blogPosts]);
 
   // Update Page Title dynamically for SEO
   useEffect(() => {
