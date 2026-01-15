@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface HeaderProps {
-  onNavigate: (page: 'home' | 'angelheights' | 'angelrise' | 'planner' | 'blog' | 'contact') => void;
+  onNavigate: (page: 'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact') => void;
   currentPage: string;
 }
 
@@ -47,12 +47,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             className={`hover:text-emerald-800 transition-colors ${currentPage === 'contact' ? 'text-emerald-900 font-semibold' : ''}`}
           >
             Contact
-          </button>
-          <button 
-            onClick={() => onNavigate('planner')}
-            className="bg-emerald-900 text-white px-5 py-2 rounded-full hover:bg-emerald-800 transition-all shadow-md"
-          >
-            AI Planner
           </button>
         </div>
       </div>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CabinDetails from './components/CabinDetails';
-import TripPlanner from './components/TripPlanner';
 import Blog from './components/Blog';
 import ContactForm from './components/ContactForm';
 import { CABINS, BLOG_POSTS } from './constants';
@@ -15,7 +14,7 @@ const STORAGE_KEYS = {
 };
 
 const App: React.FC = () => {
-  const [page, setPage] = useState<'home' | 'angelheights' | 'angelrise' | 'planner' | 'blog' | 'contact'>('home');
+  const [page, setPage] = useState<'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact'>('home');
   
   // Initialize state from localStorage or defaults
   const [homeHeroImage, setHomeHeroImage] = useState<string>(() => {
@@ -64,16 +63,13 @@ const App: React.FC = () => {
       case 'blog':
         document.title = `Mountain Musings Blog | Gatlinburg & Smoky Mountains Guide`;
         break;
-      case 'planner':
-        document.title = `AI Trip Planner | Plan Your Smoky Mountain Vacation`;
-        break;
       case 'contact':
         document.title = `Contact Us | Smoky Peaks Cabins Gatlinburg`;
         break;
     }
   }, [page]);
 
-  const handleNavigate = (newPage: 'home' | 'angelheights' | 'angelrise' | 'planner' | 'blog' | 'contact') => {
+  const handleNavigate = (newPage: 'home' | 'angelheights' | 'angelrise' | 'blog' | 'contact') => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -124,7 +120,6 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (page === 'planner') return <TripPlanner />;
     if (page === 'contact') return <ContactForm />;
     if (page === 'blog') return (
       <Blog 
@@ -274,10 +269,10 @@ const App: React.FC = () => {
             <h2 className="text-4xl md:text-6xl font-serif mb-8 drop-shadow-lg">Ready for your Gatlinburg getaway?</h2>
             <p className="text-xl text-emerald-100/70 mb-12">Join thousands of happy families who have made Smoky Peaks Cabins their home away from home in the Great Smoky Mountains.</p>
             <button 
-              onClick={() => handleNavigate('planner')}
+              onClick={() => handleNavigate('contact')}
               className="bg-white text-emerald-950 px-12 py-5 rounded-full font-bold text-lg shadow-xl hover:scale-105 transition-transform"
             >
-              Start Planning Your Trip
+              Book Your Stay
             </button>
           </div>
         </section>
