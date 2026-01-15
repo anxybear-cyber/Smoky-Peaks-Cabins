@@ -51,6 +51,10 @@
         text-shadow: 0 4px 8px rgba(0,0,0,0.5);
       }
     </style>
+    <script>
+      // Shim process for libraries that expect it in browser ESM environments
+      window.process = { env: { NODE_ENV: 'production' } };
+    </script>
     <script type="importmap">
 {
   "imports": {
